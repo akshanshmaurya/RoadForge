@@ -24,6 +24,8 @@ export function calculateDayIndex(startDate: Date, currentDate: Date = new Date(
     const diffMs = current.getTime() - start.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
+    if (diffDays < 0) return 0;
+
     // Each week in the roadmap: 5 weekdays + 1 weekend entry = 6 entries
     // Calendar week: 7 days (Mon-Sun)
     // Map: Mon-Fri → Day 1-5, Sat-Sun → Weekend (Day 6)

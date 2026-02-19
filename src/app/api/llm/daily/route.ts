@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import { getSessionUser } from '@/lib/session';
 import { generateContent } from '@/lib/gemini';
+import { checkRateLimit } from '@/lib/rateLimit';
+import { sanitizeError } from '@/lib/validate';
 import LLMInsight from '@/models/LLMInsight';
 import Roadmap from '@/models/Roadmap';
 import Day from '@/models/Day';
@@ -15,6 +17,15 @@ export async function GET(request: NextRequest) {
             userId = await getSessionUser();
         } catch {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        // Rate limit check
+        const rl = checkRateLimit(userId);
+        if (!rl.allowed) {
+            return NextResponse.json(
+                { error: 'Rate limited', retryAfterMs: rl.retryAfterMs },
+                { status: 429 }
+            );
         }
 
         await dbConnect();
@@ -94,6 +105,6 @@ Limit to 120 words. Return plain text only, no markdown headers.`;
         }
     } catch (error) {
         console.error('Daily insight error:', error);
-        return NextResponse.json({ error: 'Failed to get daily insight' }, { status: 500 });
+        return NextResponse.json({ success: false, error: sanitizeError(error) }, { status: 500 });
     }
 }

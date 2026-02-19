@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import { getSessionUser } from '@/lib/session';
+import { isValidObjectId, sanitizeError } from '@/lib/validate';
 import Task from '@/models/Task';
 import Day from '@/models/Day';
 import Roadmap from '@/models/Roadmap';
@@ -19,6 +20,11 @@ export async function PATCH(
 
         await dbConnect();
         const { taskId } = await params;
+
+        if (!isValidObjectId(taskId)) {
+            return NextResponse.json({ success: false, error: 'Invalid task ID' }, { status: 400 });
+        }
+
         const body = await request.json();
 
         // Verify task ownership
@@ -55,7 +61,7 @@ export async function PATCH(
     } catch (error) {
         console.error('Task update error:', error);
         return NextResponse.json(
-            { error: 'Failed to update task' },
+            { success: false, error: sanitizeError(error) },
             { status: 500 }
         );
     }

@@ -27,42 +27,18 @@ export default function DailyFocus({ weekNumber, dayNumber }: DailyFocusProps) {
             }
         };
 
-        if (weekNumber && dayNumber) {
-            fetchInsight();
-        }
+        if (weekNumber && dayNumber) fetchInsight();
     }, [weekNumber, dayNumber]);
 
     if (loading) {
         return (
-            <div style={{
-                padding: '20px 24px',
-                borderRadius: '14px',
-                background: 'linear-gradient(135deg, rgba(99,102,241,0.08), rgba(59,130,246,0.06))',
-                border: '1px solid rgba(99,102,241,0.2)',
-                marginBottom: '24px',
-                maxWidth: '720px',
-            }}>
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    marginBottom: '10px',
-                }}>
-                    <span style={{ fontSize: '16px' }}>🎯</span>
-                    <span style={{
-                        fontSize: '14px',
-                        fontWeight: 700,
-                        color: 'var(--accent)',
-                        letterSpacing: '-0.3px',
-                    }}>Today&apos;s Focus</span>
+            <div className="focus-panel">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '14px' }}>🎯</span>
+                    <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--accent)' }}>Today&apos;s Focus</span>
                 </div>
-                <div style={{
-                    fontSize: '13px',
-                    color: 'var(--text-muted)',
-                    fontStyle: 'italic',
-                }}>
-                    Generating insight...
-                </div>
+                <div className="skeleton skeleton-text" style={{ width: '80%' }} />
+                <div className="skeleton skeleton-text" style={{ width: '60%' }} />
             </div>
         );
     }
@@ -70,31 +46,13 @@ export default function DailyFocus({ weekNumber, dayNumber }: DailyFocusProps) {
     if (!insight) return null;
 
     return (
-        <div style={{
-            padding: '20px 24px',
-            borderRadius: '14px',
-            background: 'linear-gradient(135deg, rgba(99,102,241,0.08), rgba(59,130,246,0.06))',
-            border: '1px solid rgba(99,102,241,0.2)',
-            marginBottom: '24px',
-            maxWidth: '720px',
-        }}>
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                marginBottom: '10px',
-            }}>
-                <span style={{ fontSize: '16px' }}>🎯</span>
-                <span style={{
-                    fontSize: '14px',
-                    fontWeight: 700,
-                    color: 'var(--accent)',
-                    letterSpacing: '-0.3px',
-                }}>Today&apos;s Focus</span>
+        <div className="focus-panel">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                <span style={{ fontSize: '14px' }}>🎯</span>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--accent)' }}>Today&apos;s Focus</span>
             </div>
             <div style={{
-                fontSize: '13px',
-                lineHeight: '1.7',
+                fontSize: '12px', lineHeight: '1.7',
                 color: 'var(--text-secondary)',
                 whiteSpace: 'pre-wrap',
             }}>

@@ -25,6 +25,8 @@
   --completed-text: #64748b;
   --accent: #6366f1;
   --accent-glow: rgba(99, 102, 241, 0.2);
+  --sidebar-w: 260px;
+  --right-panel-w: 340px;
 }
 
 @theme inline {
@@ -43,31 +45,141 @@ body {
   color: var(--text-primary);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   min-height: 100vh;
+  margin: 0;
 }
 
-/* Scrollbar */
+/* ========== SCROLLBAR ========== */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
+
 ::-webkit-scrollbar-track {
-  background: var(--bg-primary);
+  background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--border-light);
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
 
-/* Checkbox custom */
+/* ========== 3-COLUMN LAYOUT ========== */
+.layout-3col {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr var(--right-panel-w);
+  min-height: 100vh;
+}
+
+@media (max-width: 1400px) {
+  .layout-3col {
+    grid-template-columns: var(--sidebar-w) 1fr 0;
+  }
+
+  .right-panel {
+    display: none;
+  }
+
+  .right-panel.drawer-open {
+    display: flex;
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--right-panel-w);
+    z-index: 50;
+    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.4);
+  }
+
+  .drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 49;
+  }
+}
+
+@media (max-width: 1200px) {
+  .layout-3col {
+    grid-template-columns: 0 1fr 0;
+  }
+
+  .left-sidebar {
+    display: none;
+  }
+
+  .left-sidebar.sidebar-open {
+    display: flex;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--sidebar-w);
+    z-index: 50;
+    box-shadow: 8px 0 32px rgba(0, 0, 0, 0.4);
+  }
+
+  .right-panel {
+    display: none;
+  }
+
+  .mobile-topbar {
+    display: flex !important;
+  }
+}
+
+.left-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.main-panel {
+  padding: 24px 28px;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+.right-panel {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--bg-sidebar);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========== TASK GRID (2-col on wide) ========== */
+.task-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@media (min-width: 1100px) {
+  .task-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ========== CHECKBOX ========== */
 .task-checkbox {
   appearance: none;
   -webkit-appearance: none;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border: 2px solid var(--border-light);
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
   position: relative;
   flex-shrink: 0;
@@ -91,18 +203,19 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   color: white;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
 }
 
-/* Category badges */
+/* ========== BADGES ========== */
 .badge {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  padding: 3px 10px;
-  border-radius: 20px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
 }
 
 .badge-graph {
@@ -123,10 +236,10 @@ body {
   border: 1px solid var(--theory-border);
 }
 
-/* Progress bar */
+/* ========== PROGRESS BAR ========== */
 .progress-track {
   width: 100%;
-  height: 6px;
+  height: 5px;
   background: var(--bg-primary);
   border-radius: 3px;
   overflow: hidden;
@@ -139,15 +252,48 @@ body {
   background: linear-gradient(90deg, var(--accent), var(--graph));
 }
 
-/* Link button */
-.link-btn {
+/* ========== BUTTONS ========== */
+.nav-btn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.nav-btn:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  border-color: var(--border-light);
+}
+
+.nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.nav-btn.active {
+  background: var(--accent-glow);
+  color: var(--accent);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
   color: var(--text-muted);
-  padding: 4px 10px;
-  border-radius: 6px;
+  padding: 3px 8px;
+  border-radius: 5px;
   border: 1px solid var(--border);
   background: transparent;
   cursor: pointer;
@@ -161,24 +307,23 @@ body {
   background: var(--graph-bg);
 }
 
-/* Sidebar styles */
+/* ========== SIDEBAR ========== */
 .sidebar-section {
   border-bottom: 1px solid var(--border);
-  padding: 16px 0;
+  padding: 12px 0;
 }
 
 .sidebar-section:last-child {
   border-bottom: none;
 }
 
-/* Week item */
 .week-item {
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .week-item:hover {
@@ -193,13 +338,10 @@ body {
   border: 1px solid rgba(99, 102, 241, 0.2);
 }
 
-/* Task card */
+/* ========== TASK CARD ========== */
 .task-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px 18px;
-  border-radius: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   transition: all 0.15s ease;
@@ -208,10 +350,12 @@ body {
 .task-card:hover {
   background: var(--bg-card-hover);
   border-color: var(--border-light);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .task-card.completed {
-  opacity: 0.55;
+  opacity: 0.5;
 }
 
 .task-card.completed .task-title {
@@ -219,10 +363,10 @@ body {
   color: var(--completed-text);
 }
 
-/* Day grid card */
+/* ========== DAY GRID ========== */
 .day-grid-card {
-  padding: 16px;
-  border-radius: 12px;
+  padding: 14px;
+  border-radius: 10px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   cursor: pointer;
@@ -246,11 +390,11 @@ body {
   box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
-/* Upload area */
+/* ========== UPLOAD ========== */
 .upload-dropzone {
   border: 2px dashed var(--border-light);
   border-radius: 16px;
-  padding: 60px 40px;
+  padding: 50px 40px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -269,40 +413,13 @@ body {
   box-shadow: 0 0 0 4px var(--accent-glow);
 }
 
-/* Nav button */
-.nav-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--bg-card);
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.nav-btn:hover {
-  background: var(--bg-card-hover);
-  color: var(--text-primary);
-  border-color: var(--border-light);
-}
-
-.nav-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-/* Collapsible reference */
+/* ========== REFERENCE VIEWER ========== */
 .ref-toggle {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 10px 0;
+  padding: 8px 0;
   background: none;
   border: none;
   color: var(--text-secondary);
@@ -317,45 +434,174 @@ body {
 }
 
 .ref-content {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-muted);
   line-height: 1.6;
-  padding: 8px 0 16px 0;
+  padding: 6px 0 12px 0;
   white-space: pre-wrap;
   font-family: var(--font-mono), monospace;
+  background: var(--bg-primary);
+  border-radius: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  overflow-x: auto;
 }
 
-/* Streak badge */
+/* ========== STAT / STREAK ========== */
 .streak-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--success);
   background: var(--success-bg);
-  padding: 4px 12px;
+  padding: 3px 10px;
   border-radius: 20px;
 }
 
-/* Stat card */
 .stat-card {
-  padding: 14px 16px;
-  border-radius: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
   background: var(--bg-card);
   border: 1px solid var(--border);
 }
 
 .stat-label {
-  font-size: 11px;
+  font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--text-muted);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .stat-value {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-primary);
+}
+
+/* ========== LOADING SKELETON ========== */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-card-hover) 50%, var(--bg-card) 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+.skeleton-text {
+  height: 14px;
+  margin-bottom: 8px;
+}
+
+.skeleton-card {
+  height: 72px;
+  margin-bottom: 8px;
+}
+
+.skeleton-title {
+  height: 28px;
+  width: 60%;
+  margin-bottom: 12px;
+}
+
+/* ========== MOBILE TOPBAR ========== */
+.mobile-topbar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--bg-sidebar);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+/* ========== FOCUS PANEL ========== */
+.focus-panel {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.06), rgba(59, 130, 246, 0.04));
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  margin-bottom: 16px;
+}
+
+/* ========== DIFFICULTY BUTTONS ========== */
+.diff-btn {
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: transparent;
+  font-size: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  text-transform: capitalize;
+  transition: all 0.1s ease;
+}
+
+.diff-btn.active-easy {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.diff-btn.active-medium {
+  border-color: #eab308;
+  background: rgba(234, 179, 8, 0.1);
+  color: #eab308;
+}
+
+.diff-btn.active-hard {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+/* ========== PANEL TABS ========== */
+.panel-tab {
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.panel-tab:hover {
+  color: var(--text-secondary);
+}
+
+.panel-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ========== SPIN ANIMATION ========== */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }

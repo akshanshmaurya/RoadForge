@@ -20,24 +20,27 @@ export default function WeekGrid({ days, weekNumber, weekTitle, currentDayIndex,
     return (
         <div>
             <h2 style={{
-                fontSize: '22px',
-                fontWeight: 700,
-                marginBottom: '8px',
+                fontSize: '24px',
+                fontWeight: 800,
+                marginBottom: '4px',
                 color: 'var(--text-primary)',
+                letterSpacing: '-0.5px',
             }}>
                 Week {weekNumber}
             </h2>
             <p style={{
-                fontSize: '14px',
+                fontSize: '13px',
                 color: 'var(--text-muted)',
-                marginBottom: '20px',
+                marginBottom: '16px',
             }}>
                 {weekTitle}
             </p>
+
+            {/* Calendar-style grid */}
             <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-                gap: '12px',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
+                gap: '10px',
             }}>
                 {days.map((day) => {
                     const totalTasks = day.tasks.length;
@@ -45,6 +48,7 @@ export default function WeekGrid({ days, weekNumber, weekTitle, currentDayIndex,
                     const allCompleted = totalTasks > 0 && completedTasks === totalTasks;
                     const isCurrent = day.globalDayIndex === currentDayIndex;
                     const dayLabel = day.type === 'weekend' ? 'Weekend' : `Day ${day.dayNumber}`;
+                    const pct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
                     return (
                         <div
@@ -53,23 +57,28 @@ export default function WeekGrid({ days, weekNumber, weekTitle, currentDayIndex,
                             onClick={() => onDayClick(day.globalDayIndex)}
                         >
                             <div style={{
-                                fontSize: '15px',
-                                fontWeight: 600,
-                                marginBottom: '8px',
+                                fontSize: '13px', fontWeight: 600, marginBottom: '6px',
                                 color: allCompleted ? 'var(--success)' : 'var(--text-primary)',
                             }}>
                                 {dayLabel}
                             </div>
+
+                            {/* Mini progress */}
                             <div style={{
-                                fontSize: '24px',
+                                width: '100%', height: '3px',
+                                background: 'var(--bg-primary)',
+                                borderRadius: '2px', overflow: 'hidden',
                                 marginBottom: '6px',
                             }}>
-                                {allCompleted ? '✓' : isCurrent ? '◉' : '○'}
+                                <div style={{
+                                    width: `${pct}%`, height: '100%',
+                                    background: allCompleted ? 'var(--success)' : 'var(--accent)',
+                                    borderRadius: '2px',
+                                    transition: 'width 0.3s ease',
+                                }} />
                             </div>
-                            <div style={{
-                                fontSize: '12px',
-                                color: 'var(--text-muted)',
-                            }}>
+
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
                                 {completedTasks}/{totalTasks} tasks
                             </div>
                         </div>
