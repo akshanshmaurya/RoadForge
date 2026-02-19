@@ -227,8 +227,22 @@ export default function UploadPage() {
                         transition: 'all 0.15s ease',
                     }}
                 >
-                    {uploading ? 'Parsing & Saving...' : 'Upload & Start'}
+                    {uploading ? '🤖 AI Parsing & Saving...' : 'Upload & Start'}
                 </button>
+
+                {/* Back to library */}
+                <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                    <a
+                        href="/library"
+                        style={{
+                            fontSize: '13px',
+                            color: 'var(--text-muted)',
+                            textDecoration: 'none',
+                        }}
+                    >
+                        ← Back to Library
+                    </a>
+                </div>
             </div>
         </div>
     );

@@ -1,17 +1,31 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
+import { getSessionUser } from '@/lib/session';
 import Roadmap from '@/models/Roadmap';
 import Week from '@/models/Week';
 import Day from '@/models/Day';
 import Task from '@/models/Task';
 import Reference from '@/models/Reference';
+import User from '@/models/User';
 
 export async function GET() {
     try {
+        let userId: string;
+        try {
+            userId = await getSessionUser();
+        } catch {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         await dbConnect();
 
-        // Get the latest roadmap
-        const roadmap = await Roadmap.findOne().sort({ createdAt: -1 });
+        // Get user's active roadmap
+        const user = await User.findById(userId);
+        if (!user?.activeRoadmapId) {
+            return NextResponse.json({ roadmap: null });
+        }
+
+        const roadmap = await Roadmap.findOne({ _id: user.activeRoadmapId, userId });
         if (!roadmap) {
             return NextResponse.json({ roadmap: null });
         }

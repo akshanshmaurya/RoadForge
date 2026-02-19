@@ -1,7 +1,10 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import ProgressBar from './ProgressBar';
 import ReferenceSection from './ReferenceSection';
+import WeaknessReport from './WeaknessReport';
 
 interface WeekInfo {
     _id: string;
@@ -37,12 +40,12 @@ interface SidebarProps {
 export default function Sidebar({
     weeks,
     currentWeek,
-    currentDayIndex,
     progress,
     references,
     onWeekClick,
-    onDayClick,
 }: SidebarProps) {
+    const router = useRouter();
+
     return (
         <aside style={{
             width: '280px',
@@ -83,6 +86,35 @@ export default function Sidebar({
                         <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>RoadForge</div>
                         <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Execute. Don&apos;t Plan.</div>
                     </div>
+                </div>
+
+                {/* Nav links */}
+                <div style={{
+                    display: 'flex',
+                    gap: '6px',
+                    marginTop: '12px',
+                }}>
+                    <button
+                        className="nav-btn"
+                        onClick={() => router.push('/library')}
+                        style={{ fontSize: '11px', padding: '4px 10px', flex: 1 }}
+                    >
+                        📚 Library
+                    </button>
+                    <button
+                        className="nav-btn"
+                        onClick={() => router.push('/upload')}
+                        style={{ fontSize: '11px', padding: '4px 10px', flex: 1 }}
+                    >
+                        + Upload
+                    </button>
+                    <button
+                        className="nav-btn"
+                        onClick={() => signOut({ callbackUrl: '/auth' })}
+                        style={{ fontSize: '11px', padding: '4px 10px', color: 'var(--text-muted)' }}
+                    >
+                        ↗
+                    </button>
                 </div>
             </div>
 
@@ -131,6 +163,11 @@ export default function Sidebar({
                 {/* Progress */}
                 <div className="sidebar-section">
                     <ProgressBar progress={progress} />
+                </div>
+
+                {/* Weakness Report (LLM) */}
+                <div className="sidebar-section">
+                    <WeaknessReport />
                 </div>
 
                 {/* References */}

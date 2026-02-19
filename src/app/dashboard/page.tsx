@@ -2,10 +2,12 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import Sidebar from '@/components/Sidebar';
 import TaskCard from '@/components/TaskCard';
 import DayNav from '@/components/DayNav';
 import WeekGrid from '@/components/WeekGrid';
+import DailyFocus from '@/components/DailyFocus';
 
 interface TaskType {
     _id: string;
@@ -13,6 +15,7 @@ interface TaskType {
     category: 'graph' | 'revision' | 'theory';
     link: string;
     completed: boolean;
+    difficulty?: 'easy' | 'medium' | 'hard' | null;
 }
 
 interface DayType {
@@ -212,6 +215,30 @@ export default function DashboardPage() {
         }
     };
 
+    // Update task difficulty
+    const handleDifficultyChange = async (taskId: string, difficulty: string) => {
+        try {
+            await fetch(`/api/tasks/${taskId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ difficulty }),
+            });
+
+            // Update locally
+            setWeeks(prev => prev.map(week => ({
+                ...week,
+                days: week.days.map(day => ({
+                    ...day,
+                    tasks: day.tasks.map(task =>
+                        task._id === taskId ? { ...task, difficulty: difficulty as TaskType['difficulty'] } : task
+                    ),
+                })),
+            })));
+        } catch (error) {
+            console.error('Failed to update difficulty:', error);
+        }
+    };
+
     // Handle week click from sidebar
     const handleWeekClick = (weekNumber: number) => {
         setViewWeekNumber(weekNumber);
@@ -295,10 +322,8 @@ export default function DashboardPage() {
                     </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                         <button
-                            className={`nav-btn ${viewMode === 'day' ? '' : ''}`}
-                            onClick={() => {
-                                setViewMode('day');
-                            }}
+                            className="nav-btn"
+                            onClick={() => setViewMode('day')}
                             style={{
                                 background: viewMode === 'day' ? 'var(--accent-glow)' : undefined,
                                 color: viewMode === 'day' ? 'var(--accent)' : undefined,
@@ -317,6 +342,13 @@ export default function DashboardPage() {
                             }}
                         >
                             Week View
+                        </button>
+                        <button
+                            className="nav-btn"
+                            onClick={() => signOut({ callbackUrl: '/auth' })}
+                            style={{ color: 'var(--text-muted)', fontSize: '12px' }}
+                        >
+                            Logout
                         </button>
                     </div>
                 </div>
@@ -351,6 +383,12 @@ export default function DashboardPage() {
                             onNext={() => navigateDay(1)}
                         />
 
+                        {/* Daily Focus (LLM) */}
+                        <DailyFocus
+                            weekNumber={currentDay.weekNumber}
+                            dayNumber={currentDay.dayNumber}
+                        />
+
                         {/* Task list */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '720px' }}>
                             {currentDay.tasks.length === 0 ? (
@@ -368,6 +406,7 @@ export default function DashboardPage() {
                                         key={task._id}
                                         task={task}
                                         onToggle={handleTaskToggle}
+                                        onDifficultyChange={handleDifficultyChange}
                                     />
                                 ))
                             )}

@@ -1,14 +1,28 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
+import { getSessionUser } from '@/lib/session';
 import Roadmap from '@/models/Roadmap';
 import Day from '@/models/Day';
 import Task from '@/models/Task';
+import User from '@/models/User';
 
 export async function GET() {
     try {
+        let userId: string;
+        try {
+            userId = await getSessionUser();
+        } catch {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         await dbConnect();
 
-        const roadmap = await Roadmap.findOne().sort({ createdAt: -1 });
+        const user = await User.findById(userId);
+        if (!user?.activeRoadmapId) {
+            return NextResponse.json({ error: 'No active roadmap' }, { status: 404 });
+        }
+
+        const roadmap = await Roadmap.findOne({ _id: user.activeRoadmapId, userId });
         if (!roadmap) {
             return NextResponse.json({ error: 'No roadmap found' }, { status: 404 });
         }
@@ -47,7 +61,7 @@ export async function GET() {
             }
         }
 
-        // Streak: count consecutive completed days from the most recent
+        // Streak
         const sortedDays = days.sort((a, b) => a.globalDayIndex - b.globalDayIndex);
         let streak = 0;
         for (let i = sortedDays.length - 1; i >= 0; i--) {
