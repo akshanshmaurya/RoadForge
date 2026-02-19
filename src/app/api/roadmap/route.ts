@@ -1,0 +1,64 @@
+import { NextResponse } from 'next/server';
+import dbConnect from '@/lib/mongodb';
+import Roadmap from '@/models/Roadmap';
+import Week from '@/models/Week';
+import Day from '@/models/Day';
+import Task from '@/models/Task';
+import Reference from '@/models/Reference';
+
+export async function GET() {
+    try {
+        await dbConnect();
+
+        // Get the latest roadmap
+        const roadmap = await Roadmap.findOne().sort({ createdAt: -1 });
+        if (!roadmap) {
+            return NextResponse.json({ roadmap: null });
+        }
+
+        // Get all weeks
+        const weeks = await Week.find({ roadmapId: roadmap._id }).sort({ weekNumber: 1 });
+
+        // Get all days with tasks
+        const days = await Day.find({ roadmapId: roadmap._id }).sort({ globalDayIndex: 1 });
+        const dayIds = days.map(d => d._id);
+        const tasks = await Task.find({ dayId: { $in: dayIds } });
+
+        // Group tasks by day
+        const tasksByDay: Record<string, typeof tasks> = {};
+        for (const task of tasks) {
+            const dayId = task.dayId.toString();
+            if (!tasksByDay[dayId]) tasksByDay[dayId] = [];
+            tasksByDay[dayId].push(task);
+        }
+
+        // Get references
+        const references = await Reference.find({ roadmapId: roadmap._id });
+
+        // Build response
+        const weeksWithDays = weeks.map(week => {
+            const weekDays = days
+                .filter(d => d.weekNumber === week.weekNumber)
+                .map(day => ({
+                    ...day.toObject(),
+                    tasks: tasksByDay[day._id.toString()] || [],
+                }));
+            return {
+                ...week.toObject(),
+                days: weekDays,
+            };
+        });
+
+        return NextResponse.json({
+            roadmap: roadmap.toObject(),
+            weeks: weeksWithDays,
+            references: references.map(r => r.toObject()),
+        });
+    } catch (error) {
+        console.error('Roadmap fetch error:', error);
+        return NextResponse.json(
+            { error: 'Failed to fetch roadmap' },
+            { status: 500 }
+        );
+    }
+}
